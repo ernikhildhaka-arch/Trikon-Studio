@@ -1,0 +1,343 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+  /* ── Dashboard specific styles ──────────────────────────────────────── */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 22px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s;
+  }
+  .stat-card:hover { transform: translateY(-3px); }
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  }
+  .stat-card.green::before { background: linear-gradient(90deg, #059669, #10b981); }
+  .stat-card.amber::before { background: linear-gradient(90deg, #b45309, #f59e0b); }
+  .stat-card.red::before   { background: linear-gradient(90deg, #b91c1c, #ef4444); }
+  .stat-num  { font-size: 2.8rem; font-weight: 800; color: #a78bfa; line-height: 1; }
+  .stat-card.green .stat-num { color: #10b981; }
+  .stat-card.amber .stat-num { color: #f59e0b; }
+  .stat-card.red   .stat-num { color: #ef4444; }
+  .stat-label { font-size: .78rem; color: #94a3b8; margin-top: 8px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+
+  /* ── Two-column layout ──────────────────────────────────────────────── */
+  .dash-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 900px) { .dash-cols { grid-template-columns: 1fr; } }
+
+  /* ── Panel card ──────────────────────────────────────────────────────── */
+  .panel {
+    background: #1a1a2e;
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  }
+  .panel-head {
+    background: #16213e;
+    padding: 14px 18px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: #a78bfa;
+    border-bottom: 1px solid #2a2a4a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-body { padding: 16px 18px; }
+
+  /* ── Bar chart ────────────────────────────────────────────────────────── */
+  .chart-wrap { position: relative; height: 180px; }
+  canvas#viewChart { width: 100% !important; height: 100% !important; }
+
+  /* ── Top pages list ───────────────────────────────────────────────────── */
+  .top-page-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #2a2a4a;
+    font-size: .85rem;
+  }
+  .top-page-row:last-child { border-bottom: none; }
+  .top-page-path { flex: 1; color: #e2e8f0; font-family: monospace; }
+  .top-page-bar-wrap { width: 90px; background: #0f0f1a; border-radius: 4px; height: 6px; }
+  .top-page-bar { background: linear-gradient(90deg, #7c3aed, #a78bfa); height: 6px; border-radius: 4px; }
+  .top-page-hits { color: #a78bfa; font-weight: 700; min-width: 40px; text-align: right; }
+
+  /* ── Device doughnut ──────────────────────────────────────────────────── */
+  .device-list { list-style: none; padding: 0; margin: 10px 0 0; }
+  .device-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #2a2a4a;
+    font-size: .85rem;
+    color: #e2e8f0;
+  }
+  .device-list li:last-child { border-bottom: none; }
+  .device-pill {
+    font-size: .7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(167,139,250,.15);
+    color: #a78bfa;
+  }
+
+  /* ── Recent inquiries ─────────────────────────────────────────────────── */
+  .inq-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid #2a2a4a;
+    font-size: .83rem;
+    gap: 10px;
+  }
+  .inq-row:last-child { border-bottom: none; }
+  .inq-name  { font-weight: 600; color: #e2e8f0; }
+  .inq-svc   { color: #94a3b8; font-size: .75rem; }
+  .inq-date  { color: #64748b; font-size: .73rem; white-space: nowrap; }
+  .badge-pending  { background: rgba(245,158,11,.15); color: #f59e0b; padding: 2px 8px; border-radius: 10px; font-size: .7rem; font-weight: 700; }
+  .badge-handled  { background: rgba(16,185,129,.15);  color: #10b981; padding: 2px 8px; border-radius: 10px; font-size: .7rem; font-weight: 700; }
+
+  /* ── App index (hide default) ─────────────────────────────────────────── */
+  #content-main > .module { margin-top: 24px; }
+  .section-title {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #64748b;
+    font-weight: 700;
+    margin: 28px 0 14px;
+  }
+</style>
+
+<div id="content-main">
+
+  <!-- ── Stat cards row ──────────────────────────────────────────────────── -->
+  <div class="dash-grid">
+    <div class="stat-card">
+      <div class="stat-num">{{ total_views }}</div>
+      <div class="stat-label">👁 Total Views</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num">{{ today_views }}</div>
+      <div class="stat-label">📅 Views Today</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-num">{{ week_views }}</div>
+      <div class="stat-label">📆 Last 7 Days</div>
+    </div>
+    <div class="stat-card {% if pending_inquiries %}red{% else %}green{% endif %}">
+      <div class="stat-num">{{ pending_inquiries }}</div>
+      <div class="stat-label">📩 Pending Inquiries</div>
+    </div>
+  </div>
+
+  <!-- ── Chart + Top pages row ───────────────────────────────────────────── -->
+  <div class="dash-cols">
+
+    <!-- 7-day chart -->
+    <div class="panel">
+      <div class="panel-head">📈 Views — Last 7 Days</div>
+      <div class="panel-body">
+        <div class="chart-wrap">
+          <canvas id="viewChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top pages -->
+    <div class="panel">
+      <div class="panel-head">🔗 Top Pages (all time)</div>
+      <div class="panel-body">
+        {% if top_pages %}
+          {% with max_hits=top_pages.0.hits %}
+          {% for p in top_pages %}
+          <div class="top-page-row">
+            <span class="top-page-path">{{ p.path }}</span>
+            <div class="top-page-bar-wrap">
+              <div class="top-page-bar" style="width:{% if max_hits %}{% widthratio p.hits max_hits 90 %}px{% else %}0{% endif %}"></div>
+            </div>
+            <span class="top-page-hits">{{ p.hits }}</span>
+          </div>
+          {% endfor %}
+          {% endwith %}
+        {% else %}
+          <p style="color:#64748b;font-size:.85rem;">No page views recorded yet.<br>Visit the site to start tracking.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Device split + Recent inquiries row ──────────────────────────────── -->
+  <div class="dash-cols">
+
+    <!-- Device split -->
+    <div class="panel">
+      <div class="panel-head">📱 Visits by Device</div>
+      <div class="panel-body">
+        {% if device_counts %}
+        <ul class="device-list">
+          {% for d in device_counts %}
+          <li>
+            <span>
+              {% if d.device == "mobile" %}📱{% elif d.device == "tablet" %}📟{% else %}🖥️{% endif %}
+              {{ d.device|capfirst }}
+            </span>
+            <span class="device-pill">{{ d.count }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+          <p style="color:#64748b;font-size:.85rem;">No data yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Recent inquiries -->
+    <div class="panel">
+      <div class="panel-head">✉️ Recent Inquiries
+        {% if pending_inquiries %}
+          <span style="background:#ef4444;color:#fff;font-size:.68rem;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:auto;">{{ pending_inquiries }} new</span>
+        {% endif %}
+      </div>
+      <div class="panel-body">
+        {% if recent_inquiries %}
+          {% for inq in recent_inquiries %}
+          <div class="inq-row">
+            <div>
+              <div class="inq-name">{{ inq.name }}</div>
+              <div class="inq-svc">{{ inq.get_service_display }}</div>
+            </div>
+            <div style="text-align:right">
+              {% if inq.handled %}
+                <span class="badge-handled">Handled</span>
+              {% else %}
+                <span class="badge-pending">Pending</span>
+              {% endif %}
+              <div class="inq-date">{{ inq.created|date:"d M H:i" }}</div>
+            </div>
+          </div>
+          {% endfor %}
+          <div style="margin-top:12px;">
+            <a href="{% url 'admin:core_inquiry_changelist' %}" style="font-size:.8rem;color:#a78bfa;">View all inquiries →</a>
+          </div>
+        {% else %}
+          <p style="color:#64748b;font-size:.85rem;">No inquiries yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── App index (default app list) ────────────────────────────────────── -->
+  <p class="section-title">All sections</p>
+  {% for app in app_list %}
+  <div class="module">
+    <table>
+      <caption>
+        <a href="{{ app.app_url }}" class="section">{{ app.name }}</a>
+      </caption>
+      {% for model in app.models %}
+      <tr class="model-{{ model.object_name|lower }}">
+        {% if model.admin_url %}
+        <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+        {% else %}
+        <th scope="row">{{ model.name }}</th>
+        {% endif %}
+        <td>
+          {% if model.add_url %}
+          <a href="{{ model.add_url }}" class="addlink">{% trans "Add" %}</a>
+          {% endif %}
+        </td>
+        <td>
+          {% if model.admin_url %}
+          {% if model.view_only %}
+          <a href="{{ model.admin_url }}" class="viewlink">{% trans "View" %}</a>
+          {% else %}
+          <a href="{{ model.admin_url }}" class="changelink">{% trans "Change" %}</a>
+          {% endif %}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% empty %}
+  <p>{% trans "You don't have permission to view or edit anything." %}</p>
+  {% endfor %}
+
+</div><!-- /content-main -->
+
+<!-- ── Chart.js ─────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  const labels = {{ chart_labels|safe }};
+  const data   = {{ chart_data|safe }};
+  const ctx    = document.getElementById('viewChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Page views',
+        data,
+        backgroundColor: 'rgba(124,58,237,.45)',
+        borderColor:     '#a78bfa',
+        borderWidth: 2,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a2e',
+          borderColor:     '#2a2a4a',
+          borderWidth: 1,
+          titleColor:  '#a78bfa',
+          bodyColor:   '#e2e8f0',
+        }
+      },
+      scales: {
+        x: {
+          grid:  { color: '#2a2a4a' },
+          ticks: { color: '#94a3b8', font: { size: 11 } }
+        },
+        y: {
+          beginAtZero: true,
+          grid:  { color: '#2a2a4a' },
+          ticks: { color: '#94a3b8', font: { size: 11 }, precision: 0 }
+        }
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

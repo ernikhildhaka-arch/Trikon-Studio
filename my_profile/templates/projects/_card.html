@@ -1,0 +1,7 @@
+<article class="card case">
+{% if p.image %}<img class="thumb" src="{{ p.image.url }}" alt="{{ p.title }}">{% endif %}
+<span class="meta">{{ p.year }} · {{ p.get_category_display }}</span>
+<h3>{{ p.title }}</h3>
+<p>{{ p.summary|linebreaksbr }}</p>
+{% if p.link %}<a class="more" href="{{ p.link }}" target="_blank" rel="noreferrer">View project</a>{% endif %}
+</article>

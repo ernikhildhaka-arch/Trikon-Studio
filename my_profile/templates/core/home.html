@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero"><div class="wrap hero-grid">
+<div>
+<h1>AI, web and VR projects, delivered end to end.</h1>
+<p class="lead">We’re a three-person freelance team. We help startups, agencies and enterprises automate work with AI, ship clean websites, create immersive 3D experiences and make clearer business decisions from data.</p>
+<div class="btns"><a class="btn primary" href="#contact">Start a project</a><a class="btn" href="#pricing">See pricing</a></div>
+</div>
+<aside class="status" aria-label="Availability">
+<h3><span class="dot"></span>Taking new projects</h3>
+<dl>
+<dt>Team</dt><dd>3 specialists</dd>
+<dt>Services</dt><dd>AI, Web, VR, Strategy</dd>
+<dt>Reply time</dt><dd>Within 24 hours</dd>
+<dt>Working</dt><dd>Remote, worldwide</dd>
+<dt>Start</dt><dd>Free 20-min call</dd>
+</dl>
+</aside>
+</div></section>
+
+<section id="services"><div class="wrap">
+<h2>What I can do for you</h2>
+<p class="sub">Four areas, one team. Hire us for a single service or combine them in one project.</p>
+<div class="grid g2">
+<div class="card"><h3>AI, data analysis and automation</h3><p>Turn messy data and repetitive tasks into dashboards, reports and automated workflows.</p><ul><li>Data cleaning and analysis</li><li>Dashboards and reporting</li><li>AI assistants and workflow automation</li></ul></div>
+<div class="card"><h3>Web design and development</h3><p>Fast, responsive websites that look professional and are simple to update.</p><ul><li>Portfolio, business and landing pages</li><li>Contact forms and basic integrations</li><li>Mobile-first, accessible design</li></ul></div>
+<div class="card"><h3>VR, 3D and immersive projects</h3><p>Interactive 3D spaces for campuses, products, events and training.</p><ul><li>3D VR environments</li><li>Immersive navigation and UX</li><li>Prototypes for demos and expos</li></ul></div>
+<div class="card"><h3>Business strategy and consulting</h3><p>Practical recommendations for teams that want to adopt AI or improve operations.</p><ul><li>AI adoption roadmaps</li><li>Process and operations planning</li><li>Market and competitor research</li></ul></div>
+</div>
+<div class="audience"><span class="pill">Startups and small businesses</span><span class="pill">Agencies</span><span class="pill">Enterprises</span><span class="pill">Students and individuals</span></div>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+<h2>Pricing packages</h2>
+<p class="sub">Fixed-scope packages so you know the cost before we begin. Every project is quoted after a short call.</p>
+<div class="grid g3">
+<div class="card price"><h3>Starter</h3><div class="amt">₹15,000 <small>from</small></div><p>For individuals and small ideas.</p><ul><li>One-page website or small analysis</li><li>1 round of revisions</li><li>Delivery in about 1 week</li></ul><a class="btn" href="#contact">Choose Starter</a></div>
+<div class="card price feat"><span class="tagline">Most requested</span><h3>Growth</h3><div class="amt">₹45,000 <small>from</small></div><p>For businesses and agencies.</p><ul><li>Multi-page site, automation or VR prototype</li><li>3 rounds of revisions</li><li>Delivery in 2 to 4 weeks</li><li>30 days of support</li></ul><a class="btn primary" href="#contact">Choose Growth</a></div>
+<div class="card price"><h3>Custom</h3><div class="amt">Quote <small>on request</small></div><p>For enterprises and larger builds.</p><ul><li>Multi-service projects</li><li>Strategy plus build</li><li>Milestone-based payments</li></ul><a class="btn" href="#contact">Request a quote</a></div>
+</div>
+<p class="note">Prices are starting points and change with scope. Students get a discount on request.</p>
+</div></section>
+
+<section id="work"><div class="wrap">
+<h2>Our work</h2>
+<p class="sub">Projects and case studies from our team.</p>
+<div class="grid g3">
+{% for p in projects %}{% include "projects/_card.html" %}{% empty %}<p class="note">Projects coming soon.</p>{% endfor %}
+</div>
+<p class="note"><a class="more" href="{% url 'projects' %}">View all projects</a></p>
+</div></section>
+
+<section id="team"><div class="wrap">
+<h2>Meet the team</h2>
+<p class="sub">Three people, each owning a service area, so you work directly with the person building your project.</p>
+<div class="grid g3">
+{% for m in team %}<div class="card member"><div class="av" aria-hidden="true">{{ m.initials }}</div><h3>{{ m.name }}</h3><span class="role">{{ m.role }}</span><p>{{ m.bio }}</p>{% if m.linkedin %}<p><a class="more" href="{{ m.linkedin }}" target="_blank" rel="noreferrer">LinkedIn</a></p>{% endif %}</div>{% endfor %}
+</div>
+</div></section>
+
+<section id="process"><div class="wrap">
+<h2>How I work</h2>
+<p class="sub">A simple four-step process with updates along the way.</p>
+<div class="steps">
+<div class="step"><h3>Discovery call</h3><p>We discuss your goals, users, budget and deadline. Free, 20 minutes.</p></div>
+<div class="step"><h3>Proposal</h3><p>You get a clear scope, timeline and fixed price in writing.</p></div>
+<div class="step"><h3>Build and review</h3><p>We share progress at each milestone and apply your feedback.</p></div>
+<div class="step"><h3>Launch and support</h3><p>We deliver the final files, walk you through them and stay available after launch.</p></div>
+</div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+<h2>Frequently asked questions</h2>
+<p class="sub" style="margin-bottom:24px">Can’t find your answer? Send us a message below.</p>
+<details><summary>Who will work on my project?</summary><p>One of our three team members leads your project based on the service you need. For larger projects, we work on it together.</p></details>
+<details><summary>How do payments work?</summary><p>Most projects are 50% upfront and 50% on delivery. Larger projects are split into milestones.</p></details>
+<details><summary>How long will my project take?</summary><p>Small projects take about a week. Larger builds take 2 to 4 weeks or more, depending on scope. We confirm the timeline in the proposal.</p></details>
+<details><summary>Do you work with clients outside India?</summary><p>Yes. We work remotely with clients anywhere and can adjust meeting times to your time zone.</p></details>
+<details><summary>What if I need changes after delivery?</summary><p>Each package includes revision rounds and a support window. Extra work after that is quoted separately.</p></details>
+<details><summary>Do I own the final work?</summary><p>Yes. After final payment, you own the deliverables and source files.</p></details>
+</div></section>
+
+<section id="contact" style="border-bottom:0"><div class="wrap contact">
+<div>
+<h2>Tell us about your project</h2>
+<p class="sub" style="margin-bottom:0">Share a few details and we’ll reply within 24 hours.</p>
+<div class="links">
+<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+<a href="https://www.linkedin.com/in/nikhildhaka88/" target="_blank" rel="noreferrer">Founder on LinkedIn</a>
+</div>
+</div>
+<form method="post" action="{% url 'home' %}#contact">
+{% csrf_token %}
+{% for m in messages %}<p class="flash" role="status">{{ m }}</p>{% endfor %}
+<div class="row"><div>{{ form.name.label_tag }}{{ form.name }}{{ form.name.errors }}</div><div>{{ form.email.label_tag }}{{ form.email }}{{ form.email.errors }}</div></div>
+<div class="row"><div>{{ form.service.label_tag }}{{ form.service }}</div><div>{{ form.budget.label_tag }}{{ form.budget }}</div></div>
+<div>{{ form.message.label_tag }}{{ form.message }}{{ form.message.errors }}</div>
+<div class="hp" aria-hidden="true">{{ form.website }}</div>
+<div><button class="btn primary" type="submit">Send message</button></div>
+</form>
+</div></section>
+{% endblock %}

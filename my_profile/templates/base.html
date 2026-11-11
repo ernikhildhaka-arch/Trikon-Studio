@@ -1,0 +1,30 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}Your Studio | AI, Web & VR Freelance Team{% endblock %}</title>
+<meta name="description" content="A three-person freelance team for AI and data automation, web design and development, VR and 3D, and business strategy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+<a class="brand" href="{% url 'home' %}">Trikon Studio</a>
+<ul>
+<li><a href="{% url 'home' %}#services">Services</a></li>
+<li><a href="{% url 'home' %}#pricing">Pricing</a></li>
+<li><a href="{% url 'home' %}#work">Work</a></li>
+<li><a href="{% url 'home' %}#team">Team</a></li>
+<li><a href="{% url 'home' %}#process">Process</a></li>
+<li><a href="{% url 'home' %}#faq">FAQ</a></li>
+<li><a class="cta" href="{% url 'home' %}#contact">Hire me</a></li>
+</ul></div></header>
+<main id="top">
+{% block content %}{% endblock %}
+</main>
+<footer><div class="wrap">© 2026 Your Studio. AI, web, VR and strategy for growing teams.</div></footer>
+</body>
+</html>

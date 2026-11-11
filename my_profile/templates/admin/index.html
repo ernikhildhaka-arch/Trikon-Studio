@@ -227,7 +227,7 @@
           {% for inq in recent_inquiries %}
           <div class="inq-row">
             <div>
-              <div class="inq-name">{{ inq.name }}</div>
+              <div class="inq-name"><a href="{% url 'admin:core_inquiry_change' inq.id %}" style="color:#e2e8f0;text-decoration:none;font-weight:600;">{{ inq.name }}</a></div>
               <div class="inq-svc">{{ inq.get_service_display }}</div>
             </div>
             <div style="text-align:right">

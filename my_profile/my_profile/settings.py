@@ -9,14 +9,25 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-%4-#w#-qr7u+_su!!6(p3&kmdp$g1--g^&_7p63rkr58bio5t%"
+# ── Environment & Security Settings ──────────────────────────────────────────
+SECRET_KEY = os.getenv(
+    "SECRET_KEY", "django-insecure-%4-#w#-qr7u+_su!!6(p3&kmdp$g1--g^&_7p63rkr58bio5t%"
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True").strip().lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = []
+allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "")
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(",") if h.strip()]
+else:
+    ALLOWED_HOSTS = ["*"] if DEBUG else ["localhost", "127.0.0.1", "[::1]"]
+
+# CSRF Trusted Origins for live deployments (Render, custom domains)
+csrf_trusted_env = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+if csrf_trusted_env:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in csrf_trusted_env.split(",") if o.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com"]
 
 
 # Application definition
@@ -35,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Serve static files efficiently in production
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -92,6 +104,17 @@ USE_TZ = True
 # Static & media files
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise storage for caching & compression
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -99,8 +122,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# ── Environment-controlled settings ──────────────────────────────────────────
-DEBUG = os.getenv("DEBUG", "True") == "True"
+# ── Email Settings ───────────────────────────────────────────────────────────
 CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "trikonstudio@gmail.com")
 DEFAULT_FROM_EMAIL = CONTACT_EMAIL
 

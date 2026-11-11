@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
+from django.contrib.auth.models import Group, User
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
@@ -11,23 +13,37 @@ from .models import Inquiry, PageView
 
 class InquiryAdmin(admin.ModelAdmin):
     list_display = ("name", "email", "service", "budget", "created", "status_badge")
-    list_filter = ("service", "handled")
+    list_filter = ("service", "handled", "created")
     search_fields = ("name", "email", "message")
     list_per_page = 20
     date_hierarchy = "created"
     readonly_fields = ("created",)
     actions = ["mark_handled", "mark_pending"]
 
+    fieldsets = (
+        ("Contact Information", {
+            "fields": ("name", "email")
+        }),
+        ("Inquiry Details", {
+            "fields": ("service", "budget", "message", "created")
+        }),
+        ("Status", {
+            "fields": ("handled",)
+        }),
+    )
+
     @admin.display(description="Status", ordering="handled")
     def status_badge(self, obj):
         if obj.handled:
             return format_html(
                 '<span style="background:#10b981;color:#fff;padding:3px 10px;'
-                'border-radius:12px;font-size:11px;font-weight:600;">✓ Handled</span>'
+                'border-radius:12px;font-size:11px;font-weight:600;">{}</span>',
+                "✓ Handled",
             )
         return format_html(
             '<span style="background:#f59e0b;color:#fff;padding:3px 10px;'
-            'border-radius:12px;font-size:11px;font-weight:600;">⏳ Pending</span>'
+            'border-radius:12px;font-size:11px;font-weight:600;">{}</span>',
+            "⏳ Pending",
         )
 
     @admin.action(description="Mark selected as handled")
@@ -138,6 +154,10 @@ class MyProfileAdminSite(admin.AdminSite):
 
 # Instantiate the custom admin site
 admin_site = MyProfileAdminSite(name="admin")
+
+# Register auth models
+admin_site.register(User, UserAdmin)
+admin_site.register(Group, GroupAdmin)
 
 # Register models on our custom site
 admin_site.register(Inquiry, InquiryAdmin)

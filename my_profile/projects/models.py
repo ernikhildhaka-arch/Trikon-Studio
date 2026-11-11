@@ -1,3 +1,4 @@
+from django.core.validators import FileExtensionValidator
 from django.db import models
 
 
@@ -8,7 +9,12 @@ class Project(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORIES)
     year = models.PositiveIntegerField()
     summary = models.TextField(help_text="Tip: use one line each for Problem, Solution and Result.")
-    image = models.ImageField(upload_to="projects/", blank=True)
+    video = models.FileField(
+        upload_to="projects/videos/",
+        blank=True,
+        validators=[FileExtensionValidator(allowed_extensions=["mp4", "webm", "mov", "avi", "mkv", "ogg"])],
+        help_text="Upload a video file for this project (MP4, WebM, MOV, etc.)",
+    )
     link = models.URLField(blank=True)
     published = models.BooleanField(default=True)
 

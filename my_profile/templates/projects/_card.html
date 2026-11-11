@@ -1,5 +1,10 @@
 <article class="card case">
-{% if p.image %}<img class="thumb" src="{{ p.image.url }}" alt="{{ p.title }}">{% endif %}
+{% if p.video %}
+<video class="thumb" controls playsinline preload="metadata">
+  <source src="{{ p.video.url }}">
+  Your browser does not support the video tag.
+</video>
+{% endif %}
 <span class="meta">{{ p.year }} · {{ p.get_category_display }}</span>
 <h3>{{ p.title }}</h3>
 <p>{{ p.summary|linebreaksbr }}</p>

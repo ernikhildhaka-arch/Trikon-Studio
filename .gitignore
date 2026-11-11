@@ -1,0 +1,20 @@
+# Virtual Environment
+.env/
+env/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Staticfiles collected for production
+staticfiles/
+
+# Media uploads
+media/
+
+# Environment secrets
+.env.local
+.env.*.local
